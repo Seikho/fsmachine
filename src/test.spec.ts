@@ -7,10 +7,12 @@ type Event = 'open' | 'close' | 'lock' | 'unlock'
 
 const { create, transition } = createMachine<State, Event>('unlocked', { throw: false })
 
-transition('locked', 'unlock', 'unlocked')
-transition('unlocked', 'open', 'opened')
-transition('opened', 'close', 'unlocked')
-transition('unlocked', 'lock', 'locked')
+transition(
+  ['locked', 'unlock', 'unlocked'],
+  ['unlocked', 'open', 'opened'],
+  ['opened', 'close', 'unlocked'],
+  ['unlocked', 'lock', 'locked']
+)
 
 type Test = [string, Event, State | false]
 
@@ -33,7 +35,9 @@ describe('transition tests', () => {
       const initial = door.getState()
       const result = door.dispatch(ev)
       const actual = door.getState()
-      expect(result, 'transition allowed').to.equal(expected !== false)
+      expect(result, `transition allowed from State.${initial} with Event.${ev}`).to.equal(
+        expected !== false
+      )
       expect(actual, 'correct end state').to.equal(expected === false ? initial : expected)
     })
   }

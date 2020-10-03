@@ -26,7 +26,7 @@ The `create` function is a factory function that creates an instance of the fini
 
 ```ts
 const fsm = createMachine<State, Event>('unlocked', { throw: false })
-fsm.transition(...)
+fsm.transition([...], [...], [...])
 const window = fsm.create()
 window.dispatch('open')
 ```
@@ -39,12 +39,9 @@ The fourth parameter is an optional callback which is called when the transition
 Asynchronous state machines only differ by allowing asynchronous callbacks.
 
 ```ts
-function transition(
-  from: State,
-  event: Event,
-  to: State,
-  callback?: (from: State, event: Event, to: State) => void
-)
+type Transition = [State, Event, State, Callback] | [State, Event, State]
+
+function transition(...transition: Transition[])
 ```
 
 ## Example
@@ -62,12 +59,14 @@ const { transition, create } = createMachine<State, Event>('unlocked', {
 })
 
 // These calls are all completely type safe due to the State and Event generics provided earlier
-transition('locked', 'unlock', 'unlocked', (from, event, to) => console.log({ from, event, to }))
-transition('unlocked', 'open', 'opened')
-transition('opened', 'close', 'unlocked')
-transition('unlocked', 'lock', 'locked')
-transition('locked', 'break', 'broken')
-transition('unlocked', 'break', 'broken')
+transition(
+  ['locked', 'unlock', 'unlocked', (from, event, to) => console.log({ from, event, to })],
+  ['unlocked', 'open', 'opened'],
+  ['opened', 'close', 'unlocked'],
+  ['unlocked', 'lock', 'locked'],
+  ['locked', 'break', 'broken'],
+  ['unlocked', 'break', 'broken']
+)
 
 // (Optional) We can override the options here or provide nothing to inherit the original options.
 const window = create({ name: 'my-first-window', throw: false })
