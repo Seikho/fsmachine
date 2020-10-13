@@ -59,4 +59,15 @@ describe('functionality tests', () => {
 
     expect(badTransition).to.throw()
   })
+
+  it('will call the custom onInvalid callback when provided', () => {
+    const onInvalid = () => {
+      throw new Error('Invoked')
+    }
+
+    const one = create({ onInvalid, throw: false })
+    const badTransition = () => one.dispatch('close')
+
+    expect(badTransition).to.throw()
+  })
 })

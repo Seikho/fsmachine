@@ -3,13 +3,16 @@ import { AsyncCallback, Callback, InvalidTransition, Options, TransitionMap } fr
 export function dispatcher<TState extends string, TEvent extends string>(
   init: TState,
   transitions: TransitionMap<TState, TEvent, Callback<TState, TEvent>>,
-  opts: Options
+  opts: Options,
 ) {
   let state = init
 
   const getState = () => state
 
   const invalid = (ev: TEvent) => {
+    if (opts.onInvalid) {
+      opts.onInvalid(state, ev)
+    }
     if (opts.throw === false) return false
     throw new InvalidTransition(ev, state)
   }
@@ -34,13 +37,16 @@ export function dispatcher<TState extends string, TEvent extends string>(
 export function dispatcherAsync<TState extends string, TEvent extends string>(
   init: TState,
   transitions: TransitionMap<TState, TEvent, AsyncCallback<TState, TEvent>>,
-  opts: Options
+  opts: Options,
 ) {
   let state = init
 
   const getState = () => state
 
   const invalid = (ev: TEvent) => {
+    if (opts.onInvalid) {
+      opts.onInvalid(state, ev)
+    }
     if (opts.throw === false) return false
     throw new InvalidTransition(ev, state)
   }

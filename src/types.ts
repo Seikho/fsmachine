@@ -1,18 +1,19 @@
 export type Callback<TState extends string, TEvent extends string> = (
   from: TState,
   event: TEvent,
-  to: TState
+  to: TState,
 ) => void
 
 export type AsyncCallback<TState extends string, TEvent extends string> = (
   from: TState,
   event: TEvent,
-  to: TState
+  to: TState,
 ) => void | Promise<void>
 
 export type Options = {
   name?: string
   throw?: boolean
+  onInvalid?: (from: string, event: string) => void
 }
 
 export type TransitionMap<

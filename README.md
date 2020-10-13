@@ -22,10 +22,27 @@ This is so we can provide type safety and inference for the `dispatch` and `tran
 
 ### create
 
+Create Machine Options
+
+A custom callback can be invoked if an invalid transition occurs by providing `onInvalid` when creating a machine:
+
+```ts
+interface CreateOptions {
+  name?: string
+  throw?: boolean
+  onInvalid?: (from: string, event: string) => void
+}
+```
+
 The `create` function is a factory function that creates an instance of the finite state machine.
 
 ```ts
-const fsm = createMachine<State, Event>('unlocked', { throw: false })
+const fsm = createMachine<State, Event>('unlocked', {
+  onInvalid: (from, event) => {
+    console.warn(`Invalid state transition ${from}::${event}`)
+  },
+  throw: false
+})
 fsm.transition([...], [...], [...])
 const window = fsm.create()
 window.dispatch('open')
@@ -65,7 +82,7 @@ transition(
   ['opened', 'close', 'unlocked'],
   ['unlocked', 'lock', 'locked'],
   ['locked', 'break', 'broken'],
-  ['unlocked', 'break', 'broken']
+  ['unlocked', 'break', 'broken'],
 )
 
 // (Optional) We can override the options here or provide nothing to inherit the original options.
