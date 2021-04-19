@@ -5,13 +5,11 @@ type State = 'opened' | 'locked' | 'unlocked'
 
 type Event = 'open' | 'close' | 'lock' | 'unlock'
 
-const { create, transition } = createMachine<State, Event>('unlocked', { throw: false })
-
-transition(
+const machine = createMachine<State, Event>('unlocked', { throw: false }).transition(
   ['locked', 'unlock', 'unlocked'],
   ['unlocked', 'open', 'opened'],
   ['opened', 'close', 'unlocked'],
-  ['unlocked', 'lock', 'locked']
+  ['unlocked', 'lock', 'locked'],
 )
 
 type Test = [string, Event, State | false]
@@ -28,7 +26,7 @@ const tests: Test[] = [
 ]
 
 describe('transition tests', () => {
-  const door = create()
+  const door = machine.create()
 
   for (const [msg, ev, expected] of tests) {
     it(`will ${msg}`, () => {
@@ -36,7 +34,7 @@ describe('transition tests', () => {
       const result = door.dispatch(ev)
       const actual = door.getState()
       expect(result, `transition allowed from State.${initial} with Event.${ev}`).to.equal(
-        expected !== false
+        expected !== false,
       )
       expect(actual, 'correct end state').to.equal(expected === false ? initial : expected)
     })
@@ -45,8 +43,8 @@ describe('transition tests', () => {
 
 describe('functionality tests', () => {
   it('will create two independant states from one machine', () => {
-    const one = create()
-    const two = create()
+    const one = machine.create()
+    const two = machine.create()
 
     one.dispatch('open')
     expect(one.getState()).to.equal('opened')
@@ -54,7 +52,7 @@ describe('functionality tests', () => {
   })
 
   it('will throw on invalid transition', () => {
-    const one = create({ throw: true })
+    const one = machine.create({ throw: true })
     const badTransition = () => one.dispatch('close')
 
     expect(badTransition).to.throw()
@@ -65,7 +63,7 @@ describe('functionality tests', () => {
       throw new Error('Invoked')
     }
 
-    const one = create({ onInvalid, throw: false })
+    const one = machine.create({ onInvalid, throw: false })
     const badTransition = () => one.dispatch('close')
 
     expect(badTransition).to.throw()
