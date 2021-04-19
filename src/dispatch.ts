@@ -1,10 +1,20 @@
 import { AsyncCallback, Callback, InvalidTransition, Options, TransitionMap } from './types'
 
+export type Dispatcher<TState extends string, TEvent extends string> = {
+  dispatch: (ev: TEvent) => boolean
+  getState: () => TState
+}
+
+export type DispatcherAsync<TState extends string, TEvent extends string> = {
+  dispatch: (ev: TEvent) => Promise<boolean>
+  getState: () => TState
+}
+
 export function dispatcher<TState extends string, TEvent extends string>(
   init: TState,
   transitions: TransitionMap<TState, TEvent, Callback<TState, TEvent>>,
   opts: Options,
-) {
+): Dispatcher<TState, TEvent> {
   let state = init
 
   const getState = () => state
@@ -38,7 +48,7 @@ export function dispatcherAsync<TState extends string, TEvent extends string>(
   init: TState,
   transitions: TransitionMap<TState, TEvent, AsyncCallback<TState, TEvent>>,
   opts: Options,
-) {
+): DispatcherAsync<TState, TEvent> {
   let state = init
 
   const getState = () => state
